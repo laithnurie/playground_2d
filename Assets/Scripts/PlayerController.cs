@@ -16,8 +16,12 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private LayerMask ground;
     [SerializeField] private float speed = 10f;
     [SerializeField] private float jump = 20f;
+
     [SerializeField] private int cherries = 0;
     [SerializeField] private Text cherryText;
+
+    [SerializeField] private int points = 0;
+    [SerializeField] private Text pointsText;
 
     private void Start()
     {
@@ -40,6 +44,13 @@ public class PlayerController : MonoBehaviour
             Destroy(collision.gameObject);
             cherries += 1;
             cherryText.text = cherries.ToString();
+        }
+
+        if (collision.tag == "Enemy")
+        {
+            Destroy(collision.gameObject);
+            points += 100;
+            pointsText.text = points.ToString();
         }
     }
 
