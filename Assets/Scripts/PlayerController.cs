@@ -23,6 +23,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private int points = 0;
     [SerializeField] private Text pointsText;
 
+    private bool disableMovement = false;
+
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -32,7 +34,11 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        Movement();
+        if (!disableMovement)
+        {
+            Movement();
+        }
+        
         AnimationState();
         anim.SetInteger("state", (int)playerState);
     }
@@ -51,6 +57,9 @@ public class PlayerController : MonoBehaviour
             Destroy(collision.gameObject);
             points += 100;
             pointsText.text = points.ToString();
+            disableMovement = true;
+            rb.velocity = new Vector2(-8, rb.velocity.y);
+            //disableMovement = false;
         }
     }
 
