@@ -9,13 +9,14 @@ public class PlayerController : MonoBehaviour
     private Animator anim;
     private Collider2D collider2d;
 
-    private enum State { idle, running, jumping, falling }
+    private enum State { idle, running, jumping, falling, hurt }
 
     private State playerState = State.idle;
 
     [SerializeField] private LayerMask ground;
     [SerializeField] private float speed = 10f;
-    [SerializeField] private float jump = 20f;
+    [SerializeField] private float jumpDistance = 20f;
+    private float recoilDistance = 8f;
 
     [SerializeField] private int cherries = 0;
     [SerializeField] private Text cherryText;
@@ -23,7 +24,6 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private int points = 0;
     [SerializeField] private Text pointsText;
 
-    private bool disableMovement = false;
 
     private void Start()
     {
@@ -34,7 +34,7 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        if (!disableMovement)
+        if (playerState != State.hurt)
         {
             Movement();
         }
@@ -51,14 +51,39 @@ public class PlayerController : MonoBehaviour
             cherries += 1;
             cherryText.text = cherries.ToString();
         }
+    }
 
-        if (collision.tag == "Enemy")
+    private void OnCollisionEnter2D(Collision2D collisionObject)
+    {
+        if (collisionObject.gameObject.tag == "Enemy")
         {
-            Destroy(collision.gameObject);
-            points += 100;
-            pointsText.text = points.ToString();
-            disableMovement = true;
-            rb.velocity = new Vector2(-8, rb.velocity.y);
+            if(playerState == State.falling)
+            {
+                Destroy(collisionObject.gameObject);
+                Jump();
+            } else
+            {
+                playerState = State.hurt;
+                float collisionXPosition = collisionObject.gameObject.transform.position.x;
+                float playerXPosition = transform.position.x;
+
+                if(collisionXPosition > playerXPosition)
+                {
+                    // enemy to right
+                    rb.velocity = new Vector2(-recoilDistance, rb.velocity.y);
+                    print("to the right meh");
+                } else
+                {
+                    // enemy to left
+                    rb.velocity = new Vector2(recoilDistance, rb.velocity.y);
+                    print("to the left");
+                }
+            }
+            
+            //points += 100;
+            //pointsText.text = points.ToString();
+            //disableMovement = true;
+            //rb.velocity = new Vector2(-8, rb.velocity.y);
             //disableMovement = false;
         }
     }
@@ -81,10 +106,16 @@ public class PlayerController : MonoBehaviour
 
         if (Input.GetButtonDown("Jump") && collider2d.IsTouchingLayers(ground))
         {
-            rb.velocity = new Vector2(rb.velocity.x, jump);
-            playerState = State.jumping;
+            Jump();
         }
     }
+
+    private void Jump()
+    {
+        rb.velocity = new Vector2(rb.velocity.x, jumpDistance);
+        playerState = State.jumping;
+    }
+
 
     private void AnimationState()
     {
@@ -98,6 +129,13 @@ public class PlayerController : MonoBehaviour
         else if (playerState == State.falling)
         {
             if (collider2d.IsTouchingLayers(ground))
+            {
+                playerState = State.idle;
+            }
+        }
+        else if (playerState == State.hurt)
+        {
+            if(Mathf.Abs(rb.velocity.x) < .1f)
             {
                 playerState = State.idle;
             }
