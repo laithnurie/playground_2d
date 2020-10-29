@@ -8,10 +8,12 @@ public class Frog : MonoBehaviour
     private Animator anim;
     private Collider2D collider2d;
 
-    private bool headingLeft = true;
+    private Direction currentDirection = Direction.Left;
     private int jumpCountAttempt = 0;
 
     private enum State { idle, jumping, falling }
+
+    private enum Direction { Left, Right }
 
     private State frogState = State.idle;
 
@@ -39,28 +41,73 @@ public class Frog : MonoBehaviour
 
     private void Movement()
     {
-        
+        Direction newDirection = GetNewDirection(currentDirection);
+        if(newDirection != currentDirection)
+        {
+            currentDirection = newDirection;
+            UpdateFrogDirection(currentDirection == Direction.Left);
+        }
+
         if (collider2d.IsTouchingLayers(ground))
         {
-            if(jumpCountAttempt == 50)
+
+            if (jumpCountAttempt == 50)
             {
                 Jump();
                 jumpCountAttempt = 0;
             }
             jumpCountAttempt++;
-            
+
         }
-        if (headingLeft)
+    }
+
+    private Direction GetNewDirection(Direction currentDirection)
+    {
+        float frogPosition = transform.position.x;
+        Direction newDirection = currentDirection;
+
+        if (currentDirection == Direction.Left)
+        {
+            if (frogPosition <= 33)
+            {
+                newDirection = Direction.Right;
+            } else
+            {
+                newDirection = Direction.Left;
+            }
+        } else
+        {
+            if(frogPosition >= 66)
+            {
+                newDirection = Direction.Right;
+            } else
+            {
+                newDirection = Direction.Left;
+            } 
+        }
+        return newDirection;
+    }
+
+    private void UpdateFrogDirection(bool newDirection)
+    {
+        if (newDirection)
         {
             transform.localScale = new Vector2(1, 1);
-        } else
+        }
+        else
         {
             transform.localScale = new Vector2(-1, 1);
         }
     }
 
-    private void Jump() {
-        rb.velocity = new Vector2(rb.velocity.x, jumpDistance);
+    private void Jump()
+    {
+        int distance = -5;
+        if (currentDirection == Direction.Right)
+        {
+            distance = 5;
+        }
+        rb.velocity = new Vector2(rb.velocity.x + distance, jumpDistance);
         frogState = State.jumping;
     }
 
