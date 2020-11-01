@@ -1,17 +1,13 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
-public class Frog : MonoBehaviour
+public class Frog : Enemy
 {
     private Rigidbody2D rb;
-    private Animator anim;
     private Collider2D collider2d;
 
     private Direction currentDirection = Direction.Left;
-    private int jumpCountAttempt = 0;
 
-    private enum State { idle, jumping, falling }
+    private enum State { idle, jumping, falling, hurt }
 
     private enum Direction { Left, Right }
 
@@ -24,17 +20,20 @@ public class Frog : MonoBehaviour
     [SerializeField] private float rightCap;
 
 
-    private void Start()
+    protected override void Start()
     {
+        base.Start();
         rb = GetComponent<Rigidbody2D>();
-        anim = GetComponent<Animator>();
         collider2d = GetComponent<Collider2D>();
     }
 
     private void Update()
     {
         Movement();
-        AnimationState();
+        if (frogState != State.hurt)
+        {
+            AnimationState();
+        }
 
         anim.SetInteger("state", (int)frogState);
     }
@@ -46,18 +45,6 @@ public class Frog : MonoBehaviour
         {
             currentDirection = newDirection;
             UpdateFrogDirection(currentDirection == Direction.Left);
-        }
-
-        if (collider2d.IsTouchingLayers(ground))
-        {
-
-            if (jumpCountAttempt == 50)
-            {
-                Jump();
-                jumpCountAttempt = 0;
-            }
-            jumpCountAttempt++;
-
         }
     }
 
@@ -90,6 +77,7 @@ public class Frog : MonoBehaviour
         }
     }
 
+    // will be called from Idle animation event
     private void Jump()
     {
         int distance = -5;
@@ -121,5 +109,17 @@ public class Frog : MonoBehaviour
         {
             frogState = State.idle;
         }
+    }
+
+    public override void Damage()
+    {
+        // you can do damage logic here if hurt or death
+        frogState = State.hurt;
+        rb.bodyType = RigidbodyType2D.Static;
+    }
+
+    public override int GetPoints()
+    {
+        return 100;
     }
 }

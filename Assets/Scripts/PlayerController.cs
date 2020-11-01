@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
@@ -59,7 +57,10 @@ public class PlayerController : MonoBehaviour
         {
             if(playerState == State.falling)
             {
-                Destroy(collisionObject.gameObject);
+                GameObject collisionGameObject = collisionObject.gameObject;
+                Enemy enemy = collisionGameObject.GetComponent<Enemy>();
+                enemy.Damage();
+                UpdatePoints(enemy.GetPoints());
                 Jump();
             } else
             {
@@ -79,12 +80,6 @@ public class PlayerController : MonoBehaviour
                     print("to the left");
                 }
             }
-            
-            //points += 100;
-            //pointsText.text = points.ToString();
-            //disableMovement = true;
-            //rb.velocity = new Vector2(-8, rb.velocity.y);
-            //disableMovement = false;
         }
     }
 
@@ -148,6 +143,12 @@ public class PlayerController : MonoBehaviour
         {
             playerState = State.idle;
         }
+    }
+
+    private void UpdatePoints(int pointsToAdd)
+    {
+        points += pointsToAdd;
+        pointsText.text = points.ToString();
     }
 
 }
