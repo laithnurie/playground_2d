@@ -42,7 +42,7 @@ public class Frog : MonoBehaviour
     private void Movement()
     {
         Direction newDirection = GetNewDirection(currentDirection);
-        if(newDirection != currentDirection)
+        if (newDirection != currentDirection)
         {
             currentDirection = newDirection;
             UpdateFrogDirection(currentDirection == Direction.Left);
@@ -66,25 +66,15 @@ public class Frog : MonoBehaviour
         float frogPosition = transform.position.x;
         Direction newDirection = currentDirection;
 
-        if (currentDirection == Direction.Left)
+        if (currentDirection == Direction.Left && frogPosition <= 33)
         {
-            if (frogPosition <= 33)
-            {
-                newDirection = Direction.Right;
-            } else
-            {
-                newDirection = Direction.Left;
-            }
-        } else
-        {
-            if(frogPosition >= 66)
-            {
-                newDirection = Direction.Right;
-            } else
-            {
-                newDirection = Direction.Left;
-            } 
+            newDirection = Direction.Right;
         }
+        else if (frogPosition >= 55)
+        {
+            newDirection = Direction.Left;
+        }
+
         return newDirection;
     }
 
