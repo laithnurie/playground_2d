@@ -22,6 +22,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private int points = 0;
     [SerializeField] private Text pointsText;
 
+    [SerializeField] private AudioSource footstep;
+    [SerializeField] private AudioSource cherry;
+
 
     private void Start()
     {
@@ -45,6 +48,7 @@ public class PlayerController : MonoBehaviour
     {
         if (collision.tag == "Collectable")
         {
+            cherry.Play();
             Destroy(collision.gameObject);
             cherries += 1;
             cherryText.text = cherries.ToString();
@@ -149,6 +153,19 @@ public class PlayerController : MonoBehaviour
     {
         points += pointsToAdd;
         pointsText.text = points.ToString();
+    }
+
+    private void handleRunningSound()
+    {
+        bool play = playerState == State.running;
+
+        if (!footstep.isPlaying && play)
+        {
+            footstep.Play();
+        } else
+        {
+            footstep.Pause();
+        }
     }
 
 }
