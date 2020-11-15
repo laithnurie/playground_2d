@@ -12,7 +12,6 @@ public class Enemy : MonoBehaviour
     public virtual void Damage()
     {
         // Do nothing
-
     }
 
     // will be called from animation event
